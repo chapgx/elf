@@ -11,6 +11,7 @@ import (
 )
 
 type Password struct {
+	cleartext   string
 	algo        string
 	version     int
 	iterations  int
@@ -19,6 +20,15 @@ type Password struct {
 	salt        []byte
 	key         []byte
 	hash        string
+	redacted    bool // is cleartext redacted
+}
+
+// Redacts cleartext passoword for security
+func (p *Password) redact() {
+	p.cleartext = "*"
+	for range 10 {
+		p.cleartext += "*"
+	}
 }
 
 func (psswd Password) String() string {
@@ -51,9 +61,13 @@ func (psswd Password) String() string {
 		panic("password salt is <nil>")
 	}
 
-	str += fmt.Sprintf("%x$", psswd.salt)
+	str += fmt.Sprintf("%x", psswd.salt)
 
 	return str
+}
+
+func (pass Password) Hash() string {
+	return pass.String()
 }
 
 func (psswd *Password) parse_hash() error {
@@ -104,10 +118,6 @@ func (psswd *Password) parse_hash() error {
 	return nil
 }
 
-func NewPassword(hash string) Password {
-	p := Password{algo: "argon2i"}
-	if hash != "" {
-		p.hash = hash
-	}
-	return p
+func NewPassword(hash, cleartext string) Password {
+	return Password{algo: "argon2i", hash: hash, cleartext: cleartext}
 }

@@ -27,7 +27,7 @@ func auth(password, hash string) {
 }
 
 // Hashed password
-func derive_key(password string, salt []byte) (key []byte, err error) {
+func derive_key(password *Password, salt []byte) (key []byte, err error) {
 	if salt == nil {
 		salt = make([]byte, SaltLength)
 		_, err = rand.Read(salt)
@@ -36,17 +36,16 @@ func derive_key(password string, salt []byte) (key []byte, err error) {
 		}
 	}
 
-	key = argon2.Key([]byte(password), salt, Iterations, Memory, Parallelism, KeyLength)
+	key = argon2.Key([]byte(password.cleartext), salt, Iterations, Memory, Parallelism, KeyLength)
 
-	p := NewPassword("")
-	p.version = argon2.Version
-	p.iterations = Iterations
-	p.memory = Memory
-	p.parallelism = Parallelism
-	p.salt = salt
-	p.key = key
+	password.version = argon2.Version
+	password.iterations = Iterations
+	password.memory = Memory
+	password.parallelism = Parallelism
+	password.salt = salt
+	password.key = key
 
-	// TODO: store password information
+	password.redact()
 
 	return key, nil
 }
