@@ -118,6 +118,10 @@ func (psswd *Password) parse_hash() error {
 	return nil
 }
 
+func (psswd *Password) store() error {
+	return nil
+}
+
 func NewPassword(hash, cleartext string) Password {
 	return Password{algo: "argon2i", hash: hash, cleartext: cleartext}
 }

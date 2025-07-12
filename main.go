@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	_ "github.com/chapgx/elf/cmd"
 	rhombi "github.com/racg0092/rhombifer"
 	"github.com/racg0092/rhombifer/pkg/builtin"
 )
