@@ -38,6 +38,8 @@ var _dbpath = filepath.Join(_elfdir, "elf.db")
 
 var _key []byte
 
+var _currentuser = &User{}
+
 func auth(password, hash string) {
 }
 
@@ -65,14 +67,13 @@ func derive_key(password *Password, salt []byte) (key []byte, err error) {
 	password.salt = salt
 	password.key = key
 
-	password.redact()
-
 	_key = key
 
 	return key, nil
 }
 
 // GetDbPath returns a path to the sqlite db
+
 func GetDbPath() string {
 	return _dbpath
 }
@@ -111,6 +112,30 @@ func Init() error {
 	return e
 }
 
+// EnvState reads the current state of the elf environment
+func EnvState() error {
+	_, e := os.Stat(_elfdir)
+
+	if os.IsNotExist(e) {
+		e = Init()
+		if e != nil {
+			return e
+		}
+	}
+
+	admin, e := Admin{}.ReadRoot()
+	if e != nil {
+		return e
+	}
+
+	e = admin.IsRootComplete()
+	if e == ErrRootIsNotComplete {
+		_currentuser.Username = "root"
+	}
+
+	return e
+}
+
 // Torch Destroys elf environment
 func Torch() error {
 	if !strings.HasSuffix(_elfdir, ".elf") {
@@ -118,4 +143,8 @@ func Torch() error {
 	}
 	e := os.RemoveAll(_elfdir)
 	return e
+}
+
+func GetUser() *User {
+	return _currentuser
 }

@@ -10,7 +10,7 @@ import (
 
 var torchcmd = &rhombifer.Command{
 	Name:      "torch",
-	ShortDesc: "Cleans up the environment this action if finite and not reversible",
+	ShortDesc: "Cleans up the environment this action is finite and not reversible",
 	Run: func(args ...string) error {
 		fmt.Print(" Your about to destroy your local environmnet are you sure you want to proceed ? [y/n] ")
 		var confirmation string

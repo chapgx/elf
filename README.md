@@ -23,9 +23,10 @@ $ elf torch
 
 
 Enter REPL mode:
+Executing `elf` without any arguments or flags will start in you in REPL mode.
 
-```sh 
-$ elf init
+```sh
+$ elf
 ```
 
 

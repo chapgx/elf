@@ -1,12 +1,15 @@
 package elf
 
 import (
+	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
+	"github.com/chapgx/elf/db"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -118,11 +121,51 @@ func (psswd *Password) parse_hash() error {
 	return nil
 }
 
-func (psswd *Password) store() error {
-	return nil
+// Store saves the password used for the derive key in a hashed form
+func (psswd *Password) Store(user string) error {
+	hashpass, e := psswd.hash_cleartext(nil)
+	if e != nil {
+		return e
+	}
+
+	client := db.Connect(_dbpath)
+	defer client.Close()
+
+	_, e = client.Exec(`
+		update admins
+		set passwd = ?
+		where passwd is null
+		and uname = ?;
+		`, hashpass, user)
+
+	if e == nil {
+		psswd.redact()
+	}
+
+	return e
 }
 
-func (pss *Password) hash_cleartext() {
+func (pss *Password) hash_cleartext(salt []byte) (string, error) {
+	if salt == nil {
+		salt = make([]byte, 16)
+		_, e := rand.Read(salt)
+		if e != nil {
+			return "", e
+		}
+	}
+
+	sha := sha256.New()
+	sha.Write([]byte(pss.cleartext))
+	sha.Write(salt)
+	hashed := sha.Sum(nil)
+
+	strhash := fmt.Sprintf("sha256$%x$%x", hashed, salt)
+
+	return strhash, nil
+}
+
+func (pss *Password) parse_cleartext_hash(hash string) []byte {
+	return nil
 }
 
 func NewPassword(hash, cleartext string) Password {

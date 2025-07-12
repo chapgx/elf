@@ -34,7 +34,8 @@ func Init(database string) error {
 	create table if not exists admins (
 		id INTEGER PRIMARY KEY,
 		uname TEXT,
-		masterkey TEXT
+		masterkey TEXT,
+		passwd TEXT
 	)
 	`)
 

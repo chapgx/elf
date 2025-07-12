@@ -18,10 +18,6 @@ var dbcmd = &rhombifer.Command{
 
 		e := command.Run()
 
-		if e.Error() == "exit status 1" {
-			return nil
-		}
-
 		return e
 	},
 }

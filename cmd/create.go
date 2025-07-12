@@ -19,7 +19,13 @@ var createsub_masterkey = &rhombifer.Command{
 	Name:      "masterkey",
 	ShortDesc: "Creates a master encryption key",
 	Run: func(args ...string) error {
-		fmt.Print("󱕴 Master Key: ")
+		user := elf.GetUser()
+
+		if user.IsNil() {
+			return errors.New("user is nil, unable to set masterkey")
+		}
+
+		fmt.Print("\n󱕴 Master Key: ")
 		pass1, epass1 := term.ReadPassword(int(os.Stdin.Fd()))
 
 		fmt.Print("\n󱕴 Master Key Verification: ")
@@ -42,6 +48,12 @@ var createsub_masterkey = &rhombifer.Command{
 		}
 
 		e = elf.Admin{}.SetKey(pass.Hash())
+
+		if e != nil {
+			return e
+		}
+
+		e = pass.Store(user.Username)
 
 		return e
 	},
