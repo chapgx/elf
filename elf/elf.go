@@ -32,9 +32,18 @@ const (
 	HashIdx
 )
 
-var elfdir = filepath.Join(home(), ".elf")
+var _elfdir = filepath.Join(home(), ".elf")
+
+var _dbpath = filepath.Join(_elfdir, "elf.db")
+
+var _key []byte
 
 func auth(password, hash string) {
+}
+
+// Derive encryption key
+func DeriveKey(pass *Password, salt []byte) ([]byte, error) {
+	return derive_key(pass, salt)
 }
 
 // Hashed password
@@ -58,7 +67,14 @@ func derive_key(password *Password, salt []byte) (key []byte, err error) {
 
 	password.redact()
 
+	_key = key
+
 	return key, nil
+}
+
+// GetDbPath returns a path to the sqlite db
+func GetDbPath() string {
+	return _dbpath
 }
 
 // Get user home directory
@@ -75,41 +91,31 @@ func home() string {
 
 // Initializes elf environment
 func Init() error {
-	if !strings.HasSuffix(elfdir, ".elf") {
+	if !strings.HasSuffix(_elfdir, ".elf") {
 		return errors.New("wrong path to perform action")
 	}
-	e := os.Mkdir(elfdir, 0700)
+	e := os.Mkdir(_elfdir, 0700)
 
 	if e != nil {
 		return e
 	}
 
-	dbpath := filepath.Join(elfdir, "elf.db")
+	e = db.Init(_dbpath)
 
-	database := db.Connect(dbpath)
-	defer database.Close()
-
-	_, e = database.Exec("PRAGMA journal_mode = WAL;")
 	if e != nil {
 		return e
 	}
 
-	_, e = database.Exec(`
-	create table if not exists admin (
-		id INTEGER PRIMARY KEY,
-		uname TEXT,
-		masterkey TEXT
-	)
-	`)
+	e = Admin{}.init()
 
 	return e
 }
 
 // Torch Destroys elf environment
 func Torch() error {
-	if !strings.HasSuffix(elfdir, ".elf") {
+	if !strings.HasSuffix(_elfdir, ".elf") {
 		return errors.New("wrong path to perform action")
 	}
-	e := os.RemoveAll(elfdir)
+	e := os.RemoveAll(_elfdir)
 	return e
 }

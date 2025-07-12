@@ -1,3 +1,4 @@
+// Package cmd handles cli commands
 package cmd
 
 import (

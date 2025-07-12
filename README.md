@@ -1,5 +1,3 @@
-# ELF
-
 <img src="./assets/elflogo.svg" width="100px"/>
 
 ELF (Encrypt Local Configuration File) is a light weight library and CLI to handle sensitive data encryption e.x (connection credentials, passwords, keys) on your local system. Main use is for processes that communicate with external secure services and require an API key to do it.
@@ -24,3 +22,29 @@ $ elf torch
 ```
 
 
+Enter REPL mode:
+
+```sh 
+$ elf init
+```
+
+
+## Help Command
+
+```sh
+$ elf help
+
+```
+
+
+Output
+```sh
+Commands
+  db      SQLITE database
+  exit    Exits REPL
+  init    initialized elf environment
+  torch   Cleans up the environment this action if finite and not reversible
+  help    Displays help information
+  clear   Clears terminal
+  create  Creates a resource
+```

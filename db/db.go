@@ -15,7 +15,28 @@ func connect(database string) *sql.DB {
 	return db
 }
 
-// Opens datbase connection
+// Connect Opens datbase connection
 func Connect(database string) *sql.DB {
 	return connect(database)
+}
+
+// Init initializes the database
+func Init(database string) error {
+	c := connect(database)
+	defer c.Close()
+
+	_, e := c.Exec("PRAGMA journal_mode = WAL;")
+	if e != nil {
+		return e
+	}
+
+	_, e = c.Exec(`
+	create table if not exists admins (
+		id INTEGER PRIMARY KEY,
+		uname TEXT,
+		masterkey TEXT
+	)
+	`)
+
+	return e
 }

@@ -122,6 +122,9 @@ func (psswd *Password) store() error {
 	return nil
 }
 
+func (pss *Password) hash_cleartext() {
+}
+
 func NewPassword(hash, cleartext string) Password {
 	return Password{algo: "argon2i", hash: hash, cleartext: cleartext}
 }
