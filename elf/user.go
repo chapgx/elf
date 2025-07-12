@@ -1,8 +1,8 @@
 package elf
 
 type User struct {
-	Username string
-	Passwd   Password
+	Username    string
+	Fingerprint Password
 }
 
 func (u *User) ReadUserFromAdmin(a Admin) {

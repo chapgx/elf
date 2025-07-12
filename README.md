@@ -46,7 +46,7 @@ Commands
   db      SQLITE database
   exit    Exits REPL
   init    initialized elf environment
-  torch   Cleans up the environment this action if finite and not reversible
+  torch   Cleans up the environment this action is finite and not reversible
   help    Displays help information
   clear   Clears terminal
   create  Creates a resource

@@ -35,7 +35,7 @@ func Init(database string) error {
 		id INTEGER PRIMARY KEY,
 		uname TEXT,
 		masterkey TEXT,
-		passwd TEXT
+		fingerprint TEXT
 	)
 	`)
 

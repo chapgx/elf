@@ -7,10 +7,10 @@ import (
 )
 
 type Admin struct {
-	Id        int
-	Username  string
-	MasterKey *string
-	Passwd    *string
+	Id          int
+	Username    string
+	MasterKey   *string
+	Fingerprint *string
 }
 
 // IsComplete determines if the root admin is completed
@@ -19,7 +19,7 @@ func (a *Admin) IsRootComplete() error {
 		return errors.New("your not the root user")
 	}
 
-	if a.MasterKey == nil || a.Passwd == nil {
+	if a.MasterKey == nil || a.Fingerprint == nil {
 		return ErrRootIsNotComplete
 	}
 
@@ -45,7 +45,7 @@ func (a Admin) ReadRoot() (Admin, error) {
 	}
 
 	var admin Admin
-	e = rows.Scan(&admin.Id, &admin.Username, &admin.MasterKey, &admin.Passwd)
+	e = rows.Scan(&admin.Id, &admin.Username, &admin.MasterKey, &admin.Fingerprint)
 
 	return admin, e
 }

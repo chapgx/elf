@@ -1,7 +1,6 @@
 package elf
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -69,8 +68,9 @@ func (psswd Password) String() string {
 	return str
 }
 
-func (pass Password) Hash() string {
-	return pass.String()
+func (pass *Password) Hash() string {
+	pass.hash = pass.String()
+	return pass.hash
 }
 
 func (psswd *Password) parse_hash() error {
@@ -123,7 +123,7 @@ func (psswd *Password) parse_hash() error {
 
 // Store saves the password used for the derive key in a hashed form
 func (psswd *Password) Store(user string) error {
-	hashpass, e := psswd.hash_cleartext(nil)
+	fingerp, e := psswd.fingerprent()
 	if e != nil {
 		return e
 	}
@@ -133,10 +133,10 @@ func (psswd *Password) Store(user string) error {
 
 	_, e = client.Exec(`
 		update admins
-		set passwd = ?
-		where passwd is null
+		set fingerprint = ?
+		where fingerprint is null
 		and uname = ?;
-		`, hashpass, user)
+		`, fingerp, user)
 
 	if e == nil {
 		psswd.redact()
@@ -145,21 +145,17 @@ func (psswd *Password) Store(user string) error {
 	return e
 }
 
-func (pss *Password) hash_cleartext(salt []byte) (string, error) {
-	if salt == nil {
-		salt = make([]byte, 16)
-		_, e := rand.Read(salt)
-		if e != nil {
-			return "", e
-		}
+func (pss *Password) fingerprent() (string, error) {
+	if pss.hash == "" {
+		return "", errors.New("master key needs bot hash before fingreprint is created")
 	}
 
 	sha := sha256.New()
+	sha.Write([]byte(pss.hash))
 	sha.Write([]byte(pss.cleartext))
-	sha.Write(salt)
 	hashed := sha.Sum(nil)
 
-	strhash := fmt.Sprintf("sha256$%x$%x", hashed, salt)
+	strhash := fmt.Sprintf("sha256$%x", hashed)
 
 	return strhash, nil
 }
