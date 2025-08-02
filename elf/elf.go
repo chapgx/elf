@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/chapgx/elf/db"
+	"github.com/chapgx/morm"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -95,14 +95,18 @@ func Init() error {
 	if !strings.HasSuffix(_elfdir, ".elf") {
 		return errors.New("wrong path to perform action")
 	}
-	e := os.Mkdir(_elfdir, 0700)
 
+	e := os.Mkdir(_elfdir, 0700)
 	if e != nil {
 		return e
 	}
 
-	e = db.Init(_dbpath)
+	_, e = morm.New(morm.SQLITE, _dbpath)
+	if e != nil {
+		return e
+	}
 
+	e = morm.CreateTable(Admin{}, "")
 	if e != nil {
 		return e
 	}

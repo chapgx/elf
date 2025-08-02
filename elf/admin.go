@@ -4,13 +4,14 @@ import (
 	"errors"
 
 	"github.com/chapgx/elf/db"
+	"github.com/chapgx/morm"
 )
 
 type Admin struct {
-	Id          int
+	Id          int `morm:"id int primary key"`
 	Username    string
-	MasterKey   *string
-	Fingerprint *string
+	MasterKey   *string `morm:"master_key text"`
+	Fingerprint *string `morm:"finger_print text"`
 }
 
 // IsComplete determines if the root admin is completed
@@ -52,13 +53,14 @@ func (a Admin) ReadRoot() (Admin, error) {
 
 // Inserts initial administrator into the database
 func (admin Admin) init() error {
-	client := db.Connect(_dbpath)
-	defer client.Close()
+	if admin.Username != "" {
+		return errors.New("username must be <nil> for the init function")
+	}
 
-	_, e := client.Exec(`
-	insert into admins(uname)
-	values('root');
-	`)
+	// TODO: need to read first to make sure root does not exists
+
+	admin.Username = "root"
+	e := morm.Insert(&admin)
 
 	return e
 }
